@@ -94,5 +94,6 @@ def parser(courseList:str, courseUrl)->dict:
                 'url':yes[0],
                 'format':yes[1]
             }
+            cc+=1
     return courseDict
 

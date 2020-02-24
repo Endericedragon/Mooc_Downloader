@@ -2,6 +2,7 @@ import requests
 import os
 import re
 import json
+import urllib.request
 
 urlList = 'http://www.icourse163.org/dwr/call/plaincall/CourseBean.getMocTermDto.dwr'
 urlSig = 'http://www.icourse163.org/web/j/resourceRpcBean.getResourceToken.rpc?csrfKey='
@@ -111,3 +112,16 @@ def ariaDown(url, file_name, path):
         print('File exists.{0} won\'t be downloaded.'.format(file_name))
     else:
         os.system('aria2\\aria2c --split=16 --dir \"{dire}\" --out \"{x}\" {y}'.format(dire=path, x=file_name, y=url))
+
+def urllibDown(url, fileName, path):
+    if (os.path.exists(path+'\\'+fileName) or os.path.exists(path+'\\'+fileName) or os.path.exists(path+'\\'+fileName)):
+        print('File exists.{0} won\'t be downloaded.'.format(fileName))
+        return 0
+    try:
+        print('正在下载'+fileName+'...')
+        res = urllib.request.urlopen(url)
+        with open(path+'\\'+fileName, 'wb') as f:
+            f.write(res.read())
+    except:
+        print('Urllib error!')
+        return -1

@@ -3,6 +3,7 @@ import parseList
 import createFolder
 import process
 import os
+import re
 '''
 全程使用session
 首先获取tid —— 搞定
@@ -21,7 +22,5 @@ def main():
     createFolder.creater(courseName, courseDict)
     process.m3u8Process(courseName, courseDict)
 if (__name__=='__main__'):
-    print('------中国大学Mooc小爬虫v0.02------')
-    print('--------by Endericedragon--------')
     main()
     os.system('pause')

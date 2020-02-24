@@ -37,16 +37,18 @@ def m3u8Process(courseName, courseDict):
                         for each in tsInfo:
                             each = each.strip()
                             if each[0]!='#':
+                                print('{2} -n -i \"{0}\" \"{1}.mp4\"'.format(url+each, namer(cc), fg))
                                 os.system('{2} -n -i \"{0}\" \"{1}.mp4\"'.format(url+each, namer(cc), fg))
                                 cc+=1
                         with open('temp.txt', 'w') as f:
                             for i in range(cc):
                                 f.write('file \'{0}.mp4\'\n'.format(namer(i)))
+                        print('{1} -n -f concat -i \"temp.txt\" \"{0}.mp4\"'.format(vidName, fg))
                         os.system('{1} -n -f concat -i \"temp.txt\" \"{0}.mp4\"'.format(vidName, fg))
                         os.system('del temp.txt')
-                        os.system('del '+vid)
+                        os.remove(vid)
                         for ck in range(cc):
-                            os.system('del {0}.mp4'.format(namer(ck)))
+                            os.system('del \"{0}.mp4\"'.format(namer(ck)))
                         os.chdir(origin_path)
 
 def test():
