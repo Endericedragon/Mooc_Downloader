@@ -2,8 +2,10 @@ import network
 import parseList
 import createFolder
 import process
+
 import os
-import re
+# ~ import re
+# ~ import pickle
 '''
 全程使用session
 首先获取tid —— 搞定
@@ -14,7 +16,6 @@ import re
 '''
 def main():
     courseUrl = network.https2http(input('请输入课程网址:'))
-    # ~ courseUrl = 'http://www.icourse163.org/learn/CCOM-1003681001?tid=1207386214'
     courseName = network.getCourseName(courseUrl)
     courseTid = network.getTid(courseUrl)
     courseList = network.getList(courseTid)

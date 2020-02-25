@@ -1,6 +1,7 @@
 import re
 import os
 import pickle
+from multiprocessing import Pool
 
 def namer(num):
     if num<10:
@@ -25,35 +26,28 @@ def m3u8Process(courseName, courseDict):
                     continue
                 for vid in os.listdir(path): #vid带有后缀名
                     if re.search(vidName, vid) and 'mp4' not in vid:
-                        origin_path = os.getcwd()
-                        fg = origin_path+'\\ffmpeg\\bin\\ffmpeg'
-                        os.chdir(path)
+                        fg = 'ffmpeg\\bin\\ffmpeg.exe'
                         cc = 0
                         rawUrl = vidInfo[vidName]['url']
                         url = rawPat.match(rawUrl).group()
                         # ~ print(vid)
-                        with open(vid, 'r') as f:
+                        with open(path+'\\'+vid, 'r') as f:
                             tsInfo = f.readlines()
+                        p = Pool(4)
                         for each in tsInfo:
                             each = each.strip()
                             if each[0]!='#':
-                                print('{2} -n -i \"{0}\" \"{1}.mp4\"'.format(url+each, namer(cc), fg))
-                                os.system('{2} -n -i \"{0}\" \"{1}.mp4\"'.format(url+each, namer(cc), fg))
+                                # ~ os.system('{0} -n -i \"{1}\" \"{2}\\{3}.mp4\"'.format(fg, url+each, path, namer(cc)))
+                                p.apply_async(os.system, args = ('{0} -n -i \"{1}\" \"{2}\\{3}.mp4\"'.format(fg, url+each, path, namer(cc)),))
                                 cc+=1
-                        with open('temp.txt', 'w') as f:
-                            for i in range(cc):
-                                f.write('file \'{0}.mp4\'\n'.format(namer(i)))
-                        print('{1} -n -f concat -i \"temp.txt\" \"{0}.mp4\"'.format(vidName, fg))
-                        os.system('{1} -n -f concat -i \"temp.txt\" \"{0}.mp4\"'.format(vidName, fg))
-                        os.system('del temp.txt')
-                        os.remove(vid)
+                        p.close()
+                        p.join()
+                        print(vidName, '的分片文件全部下载完成')
+                        files = 'concat:'
+                        for i in range(cc):
+                            files+=(path+'\\'+namer(i)+'.mp4|')
+                        files = files[:-1]
+                        os.system('{0} -n -i \"{1}\" \"{2}\\{3}.mp4\"'.format(fg, files, path, vidName))
+                        os.remove(path+'\\'+vid)
                         for ck in range(cc):
-                            os.system('del \"{0}.mp4\"'.format(namer(ck)))
-                        os.chdir(origin_path)
-
-def test():
-    with open('tempDict.pck', 'rb') as f:
-        d = pickle.load(f)
-    m3u8Process('音乐奥秘解码——轻松学乐理_中国大学MOOC(慕课)', d)
-if __name__=='__main__':
-    test()
+                            os.system('del \"{0}\\{1}.mp4\"'.format(path, namer(ck)))
