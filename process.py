@@ -1,6 +1,7 @@
 import re
 import os
 import pickle
+import network
 from multiprocessing import Pool
 
 def namer(num):
@@ -22,7 +23,7 @@ def m3u8Process(courseName, courseDict):
             for vidName, detail in vidInfo.items(): #vidName没有后缀名
                 if detail['format']!='m3u8':
                     continue
-                elif os.path.exists(path+'\\'+vidName+'.mp4'):
+                elif os.path.exists(path+'\\'+vidName+'.ts'):
                     continue
                 for vid in os.listdir(path): #vid带有后缀名
                     if re.search(vidName, vid) and 'mp4' not in vid:
@@ -37,17 +38,17 @@ def m3u8Process(courseName, courseDict):
                         for each in tsInfo:
                             each = each.strip()
                             if each[0]!='#':
-                                # ~ os.system('{0} -n -i \"{1}\" \"{2}\\{3}.mp4\"'.format(fg, url+each, path, namer(cc)))
-                                p.apply_async(os.system, args = ('{0} -n -i \"{1}\" \"{2}\\{3}.mp4\"'.format(fg, url+each, path, namer(cc)),))
+                                # ~ p.apply_async(os.system, args = ('{0} -n -i \"{1}\" \"{2}\\{3}.ts\"'.format(fg, url+each, path, namer(cc)),))
+                                p.apply_async(network.urllibDown, args = (url+each, namer(cc)+'.ts', path))
                                 cc+=1
                         p.close()
                         p.join()
                         print(vidName, '的分片文件全部下载完成')
                         files = 'concat:'
                         for i in range(cc):
-                            files+=(path+'\\'+namer(i)+'.mp4|')
+                            files+=(path+'\\'+namer(i)+'.ts|')
                         files = files[:-1]
                         os.system('{0} -n -i \"{1}\" \"{2}\\{3}.mp4\"'.format(fg, files, path, vidName))
                         os.remove(path+'\\'+vid)
                         for ck in range(cc):
-                            os.system('del \"{0}\\{1}.mp4\"'.format(path, namer(ck)))
+                            os.system('del \"{0}\\{1}.ts\"'.format(path, namer(ck)))

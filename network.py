@@ -117,11 +117,46 @@ def urllibDown(url, fileName, path):
     if (os.path.exists(path+'\\'+fileName) or os.path.exists(path+'\\'+fileName) or os.path.exists(path+'\\'+fileName)):
         print('File exists.{0} won\'t be downloaded.'.format(fileName))
         return 0
+    for i in range(1,6):
+        try:
+            print('正在下载'+fileName+'...')
+            r = requests.get(url, headers = hd, timeout = 2)
+            break
+        except:
+            print('重试...第%d次' % (i))
+    with open(path+'\\'+fileName, 'wb') as f:
+        f.write(r.content)
+    print(fileName, '下载完成。')
+
+def getPdfUrl(name, conId, Id):
+    pdfUrl = 'http://www.icourse163.org/dwr/call/plaincall/CourseBean.getLessonUnitLearnVo.dwr'
+    pdfData = {
+        'callCount':'1',
+        'scriptSessionId':'${scriptSessionId}190',
+        'httpSessionId':'0397251039424db2b1659352f45d1540',
+        'c0-scriptName':'CourseBean',
+        'c0-methodName':'getLessonUnitLearnVo',
+        'c0-id':'0',
+        'c0-param0':'number:'+conId, #(contentId)
+        'c0-param1':'number:3',
+        'c0-param2':'number:0',
+        'c0-param3':'number:'+Id, #(id)
+        'batchId':'1584017274511'
+    }
     try:
-        print('正在下载'+fileName+'...')
-        res = urllib.request.urlopen(url)
-        with open(path+'\\'+fileName, 'wb') as f:
-            f.write(res.read())
+        r = requests.post(pdfUrl, headers = hd, data = pdfData)
+        r.encoding = r.apparent_encoding
+        r.raise_for_status()
     except:
-        print('Urllib error!')
-        return -1
+        return ''
+    gotIt = r.text
+    pdfGet = re.search('textOrigUrl:\".+?\"', gotIt)
+    if pdfGet:
+        pdfGet = pdfGet.group()[13:-1]
+    else:
+        pdfGet = ''
+    return pdfGet
+def test():
+    getPdfUrl('wow', '1003316105', '1214227359')
+if __name__ == '__main__':
+    test()

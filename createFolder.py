@@ -24,7 +24,7 @@ def creater(courseName, courseDict):
                 url = info['url']
                 path = courseName+'\\'+week+'\\'+section
                 #network.ariaDown(url, fileName, path)
-                if (fileName[-4:]=='m3u8'):
+                if (fileName[-4:]=='m3u8' or info['format']=='pdf'):
                     network.urllibDown(url, fileName, path)
                 else:
                     p.apply_async(network.ariaDown, args=(url, fileName, path))

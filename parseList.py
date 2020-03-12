@@ -1,8 +1,42 @@
 import re
 from network import getVideoUrl
+from network import getPdfUrl
+
+def char2int(n):
+    indexDict = {
+        '一':1,
+        '二':2,
+        '三':3,
+        '四':4,
+        '五':5,
+        '六':6,
+        '七':7,
+        '八':8,
+        '九':9,
+        '十':10
+    }
+    if len(n)==1:
+        return str(indexDict[n])
+    elif len(n)==2 and n[0]=='十':
+        return str(10+indexDict[n[1]])
+    elif len(n)==2 and n[1]=='十':
+        return str(indexDict[n[0]]*10)
+    elif len(n)==2:
+        return str(indexDict[n[0]]*10+indexDict[n[1]])
+    else:
+        return str(indexDict[n[0]]*10+indexDict[n[2]])
 
 def namer(name, num='k'):
-    forbid = re.compile('[\\/:\*\?\"<>\|]')
+    weeksForbid1 = re.compile('^第[一二三四五六七八九十][讲周]')
+    weeksForbid2 = re.compile('^第[一二三四五六七八九十][一二三四五六七八九十][讲周]')
+    weeksForbid3 = re.compile('^第[一二三四五六七八九十][一二三四五六七八九十][一二三四五六七八九十][讲周]')
+    if weeksForbid1.match(name):
+        name = name[0]+char2int(name[1])+name[2:]
+    elif weeksForbid2.match(name):
+        name = name[0]+char2int(name[1:3])+name[3:]
+    elif weeksForbid3.match(name):
+        name = name[0]+char2int(name[1:4])+name[4:]
+    forbid = re.compile('[\\/:\*\?\"<>\|\s]')
     legal_name = ''
     for each in name:
         if forbid.match(each):
@@ -64,6 +98,7 @@ def parser(courseList:str, courseUrl)->dict:
     一级目录 无chapterId 无contentId contentType=1
     二级目录 有chapterId 无contentId contentType=1
     视频文件 有chapterId 有contentId contentType=1
+    pdf文件 有chapterId 有contentId contentType=3
     '''
     courseList = courseList.split('\n')
     for line in courseList:
@@ -95,5 +130,12 @@ def parser(courseList:str, courseUrl)->dict:
                 'format':yes[1]
             }
             cc+=1
+        elif (getchId(line) and getcoId(line) and getcoType(line)=='3'):
+            # ~ print('pdf课件')
+            ok = getPdfUrl(getName(line), getcoId(line), getId(line))
+            temp2[namer(getName(line))]={
+                'url':ok,
+                'format':'pdf'
+            }
     return courseDict
 
