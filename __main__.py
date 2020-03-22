@@ -4,6 +4,8 @@ import createFolder
 import process
 
 import os
+import tkinter
+from tkinter import messagebox
 # ~ import re
 # ~ import pickle
 '''
@@ -22,6 +24,8 @@ def main():
     courseDict = parseList.parser(courseList, courseUrl)
     createFolder.creater(courseName, courseDict)
     process.m3u8Process(courseName, courseDict)
+    tk = tkinter.Tk()
+    tk.withdraw()
+    messagebox.showinfo(title = '提示', message = '下载已全部完成!')
 if (__name__=='__main__'):
     main()
-    os.system('pause')

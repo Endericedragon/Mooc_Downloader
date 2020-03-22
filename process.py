@@ -38,7 +38,7 @@ def m3u8Process(courseName, courseDict):
                         for each in tsInfo:
                             each = each.strip()
                             if each[0]!='#':
-                                # ~ p.apply_async(os.system, args = ('{0} -n -i \"{1}\" \"{2}\\{3}.ts\"'.format(fg, url+each, path, namer(cc)),))
+                                # ~ p.apply_async(os.system, args = ('{0} -n -i \"{1}\" -c copy \"{2}\\{3}.ts\"'.format(fg, url+each, path, namer(cc)),))
                                 p.apply_async(network.urllibDown, args = (url+each, namer(cc)+'.ts', path))
                                 cc+=1
                         p.close()

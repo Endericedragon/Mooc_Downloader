@@ -26,16 +26,35 @@ def char2int(n):
     else:
         return str(indexDict[n[0]]*10+indexDict[n[2]])
 
+def reName(name):
+    if re.search('第[一二三四五六七八九十]{3}', name):
+        get = list(re.search('第[一二三四五六七八九十]{3}', name).span())
+        temp = ''
+        for i in range(len(name)):
+            if (i>get[0] and i<get[1]):
+                temp+=name[i]
+        temp = '第'+'0'+char2int(temp)
+        name = re.sub('第[一二三四五六七八九十]{3}', temp, name)
+    elif re.search('第[一二三四五六七八九十]{2}', name):
+        get = list(re.search('第[一二三四五六七八九十]{2}', name).span())
+        temp = ''
+        for i in range(len(name)):
+            if (i>get[0] and i<get[1]):
+                temp+=name[i]
+        temp = '第'+'0'+char2int(temp)
+        name = re.sub('第[一二三四五六七八九十]{2}', temp, name)
+    elif re.search('第[一二三四五六七八九十]', name):
+        get = list(re.search('第[一二三四五六七八九十]', name).span())
+        temp = ''
+        for i in range(len(name)):
+            if (i>get[0] and i<get[1]):
+                temp+=name[i]
+        temp = '第'+'00'+char2int(temp)
+        name = re.sub('第[一二三四五六七八九十]', temp, name)
+    return name
+
 def namer(name, num='k'):
-    weeksForbid1 = re.compile('^第[一二三四五六七八九十][讲周]')
-    weeksForbid2 = re.compile('^第[一二三四五六七八九十][一二三四五六七八九十][讲周]')
-    weeksForbid3 = re.compile('^第[一二三四五六七八九十][一二三四五六七八九十][一二三四五六七八九十][讲周]')
-    if weeksForbid1.match(name):
-        name = name[0]+char2int(name[1])+name[2:]
-    elif weeksForbid2.match(name):
-        name = name[0]+char2int(name[1:3])+name[3:]
-    elif weeksForbid3.match(name):
-        name = name[0]+char2int(name[1:4])+name[4:]
+    name = reName(name)
     forbid = re.compile('[\\/:\*\?\"<>\|\s]')
     legal_name = ''
     for each in name:
@@ -92,6 +111,13 @@ def getName(line):
     else:
         return None
 
+def notTest(line):
+    testPat = re.compile('s\d+\.test=s\d+')
+    if testPat.search(line):
+        return False
+    else:
+        return True
+
 def parser(courseList:str, courseUrl)->dict:
     courseDict = {}
     '''
@@ -109,6 +135,7 @@ def parser(courseList:str, courseUrl)->dict:
         # ~ print(getName(line))
         if (getchId(line)==None and getcoId(line)==None and getcoType(line)=='1'):
             # ~ print('一级目录')
+            #print('\n\n{0}\n{1}\n\n'.format(getName(line), namer(getName(line))))
             temp = courseDict
             courseDict[namer(getName(line))]={}
             temp = courseDict[namer(getName(line))]
@@ -130,7 +157,7 @@ def parser(courseList:str, courseUrl)->dict:
                 'format':yes[1]
             }
             cc+=1
-        elif (getchId(line) and getcoId(line) and getcoType(line)=='3'):
+        elif (getchId(line) and getcoId(line) and getcoType(line)=='3' and notTest(line)):
             # ~ print('pdf课件')
             ok = getPdfUrl(getName(line), getcoId(line), getId(line))
             temp2[namer(getName(line))]={
@@ -138,4 +165,3 @@ def parser(courseList:str, courseUrl)->dict:
                 'format':'pdf'
             }
     return courseDict
-
